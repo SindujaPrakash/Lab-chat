@@ -185,11 +185,11 @@ public class ChatServer
    * we have unperturbed access to the modification of the message queue.
    * @param audio  The audio to add.
    */
-  protected synchronized void addAud (AudioStream aud) {
+  protected synchronized void addAud (String aud) {
 	isAud =1;
     audQueue.addLast (aud);
     audCount++;
-    System.out.println ("IMG#" + audCount);
+    System.out.println ("AUD#" + audCount);
     // Wake up the distribution thread.
     wakeUp (); // intimates the thread to send the message to wake up.
   }
@@ -210,15 +210,15 @@ public class ChatServer
   }
   
    /**
-   * Retrieves the oldest (first) audio from the audio queue.
+   * Retrieves the oldest (first) path of audio from the audio queue.
    * This call is synchronized to prevent simultaneous update of
    * the audio queue.
-   * @return The next audio, or null if the queue is empty.
+   * @return The path of next audio, or null if the queue is empty.
    */
-  protected synchronized AudioStream getNextAud () {
-    AudioStream rtn = null;
+  protected synchronized String getNextAud () {
+    String rtn = null;
     try {
-      rtn = (AudioStream) audQueue.removeFirst ();
+      rtn = (String) audQueue.removeFirst ();
     }
     catch (java.util.NoSuchElementException nse) {}
     return rtn;
@@ -282,7 +282,7 @@ public class ChatServer
   
    // In interface ChatServerInterface
   
-  public void sendAud (AudioStream aud) throws java.rmi.RemoteException
+  public void sendAud (String aud) throws java.rmi.RemoteException
   {
 	  if(aud !=  null)
 	  {
@@ -353,11 +353,11 @@ public class ChatServer
     while (runDelivery) {
 	  if(isAud == 1)
 	  {
-		  AudioStream aud = getNextAud();
+		  String aud = getNextAud();
 		  if(aud != null)
 		  {
 			  //Prepare a notification
-			  ChatNotification note = new ChatNotification(this,aud,audCount);
+			  ChatNotification note = new ChatNotification(this,aud,audCount,isAud);
 			  // Send it to all registered listeners.
 			  for (int i = 0; i < clients.size (); i++) {
 					try {

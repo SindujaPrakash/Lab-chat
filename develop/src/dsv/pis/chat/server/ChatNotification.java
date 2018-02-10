@@ -29,7 +29,7 @@ public class ChatNotification
    */
   protected String text;
   protected ImageIcon image;
-  protected AudioStream aud;
+  protected String aud;
   public int isImage = 0;
   public int isAud = 0;
 
@@ -78,7 +78,7 @@ public class ChatNotification
    * @param serial The serial number of the message in the server's sequence.
    */
    
-   public ChatNotification (Object source, AudioStream audio, int serial) {
+   public ChatNotification (Object source, String audio, int serial,int isAud) {
     // Call the constructor of the superclass (RemoteEvent) explicitly
     // so that its fields can be initialized to what we want. Actually,
     // we are only putting the serial number in as the sequence nr, but
@@ -88,7 +88,7 @@ public class ChatNotification
 	   serial,		// sequence number
 	   null);		// handback
     this.aud = audio;
-	isAud = 1;
+	this.isAud = 1;
   }
   
 
@@ -112,7 +112,7 @@ public class ChatNotification
    * Returns the audio in the notification.
    * @return The audio.
    */
-  public AudioStream  getAud () {
+  public String  getAud () {
     return aud;
   }
 }

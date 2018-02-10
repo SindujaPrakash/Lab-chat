@@ -49,6 +49,18 @@ public class ChatClient
     ServiceDiscoveryListener,	// So we can receive service notifications
     RemoteEventListener		// So we can receive chat notifications
 {
+  /*
+  * Check if AudioPlayer is playing
+  */
+  
+  int isAudPlay = 0;
+  
+  /*
+  * Audio Player
+  */
+  
+  AudioStream  aud = null;
+  
   /**
    * Holds the Jini ServiceItems of found ChatServers.
    */
@@ -198,8 +210,22 @@ public class ChatClient
 		ChatNotification chat = (ChatNotification) rev;
 		if(chat.isAud==1)
 		{
-			//ChatAudioInterface.playAudio(chat.getAud());
-			AudioPlayer.player.start(chat.getAud());
+        try
+        {
+		  // open the sound file as a Java input stream
+		  InputStream in = new FileInputStream(chat.getAud());
+
+		  // create an audiostream from the inputstream
+		  aud = new AudioStream(in);
+		  AudioPlayer.player.start(aud);
+		  isAudPlay = 1;
+        }
+        catch (Exception e)
+        {
+          e.printStackTrace();
+          System.exit(1);
+        }
+			chat.isAud=0;
 		}
 		if(chat.isImage==1)
 		{
@@ -209,7 +235,7 @@ public class ChatClient
 		}
 		else
 		{
-			System.out.println (chat.getSequenceNumber ()+ " " + chat.getText());
+			System.out.println (chat.getSequenceNumber ());
 		}
     }
   }
@@ -447,31 +473,13 @@ public class ChatClient
    * @param text  The text to send to the currently connected server.
    */
   public void sendAud (String filePath) {
-    if (myServer != null) {
-     AudioStream  aud = null;
-        try
-        {
-          //aud = ChatAudioInterface.getAudio(filePath);
-		  // open the sound file as a Java input stream
-		  InputStream in = new FileInputStream(filePath);
-
-		  // create an audiostream from the inputstream
-		  aud = new AudioStream(in);
-		  AudioPlayer.player.start(aud);
-        }
-        catch (Exception e)
-        {
-          e.printStackTrace();
-          System.exit(1);
-        }
-		/*try
-		{
-			myServer.sendAud(aud);
-		}
-		catch (java.rmi.RemoteException rex)
-		{
-			System.out.println ("[Sending to server failed]");
-		}*/
+     if (myServer != null) {
+      try {
+	myServer.sendAud (filePath);
+      }
+      catch (java.rmi.RemoteException rex) {
+	System.out.println ("[Sending to server failed]");
+      }
     }
   }
 
@@ -686,6 +694,16 @@ public class ChatClient
 	}
 	else if("audio".startsWith(verb)) {
 	  sendAud(stringJoin (argv, 1, " "));
+	}
+	else if("audiostop".startsWith(verb)) {
+		if(isAudPlay == 1)
+		{
+			AudioPlayer.player.stop(aud);
+		}
+		else
+		{
+			System.out.println("No running Audio Player Detected");
+		}
 	}
 	else {
 	  System.out.println ("[" + verb + ": unknown command]");

@@ -45,7 +45,7 @@ public interface ChatServerInterface
 	* @param aud The audio
 	*/
 	
-	public void sendAud (AudioStream aud)
+	public void sendAud (String aud)
     throws java.rmi.RemoteException;
 
   /**
